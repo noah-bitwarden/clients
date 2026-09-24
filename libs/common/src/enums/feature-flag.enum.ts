@@ -14,6 +14,7 @@ export enum FeatureFlag {
   StagedStatus = "pm-34423-staged-status",
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  ProviderApiKey = "pm-provider-api-key",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -148,6 +149,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.ProviderApiKey]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,

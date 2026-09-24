@@ -7835,6 +7835,12 @@
   "apiKeyWarning": {
     "message": "Your API key has full access to the organization. It should be kept secret."
   },
+  "providerApiKeyWarning": {
+    "message": "Your API key has read-only access to your provider's billing information. It should be kept secret."
+  },
+  "rotateApiKeyConfirmation": {
+    "message": "Rotating the API key immediately invalidates the current key. Any integrations using it will stop working until they are updated with the new key."
+  },
   "userApiKeyDesc": {
     "message": "Your API key can be used to authenticate in the Bitwarden CLI."
   },
