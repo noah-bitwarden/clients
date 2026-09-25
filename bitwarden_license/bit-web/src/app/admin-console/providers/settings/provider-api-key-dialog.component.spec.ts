@@ -181,5 +181,22 @@ describe("ProviderApiKeyDialogComponent", () => {
       expect(providerApiKeyService.getOrCreateApiKey).toHaveBeenCalledTimes(1);
       expect(clientSecretValue()).toBe("rotated-api-key");
     });
+
+    it("restores the current key when the rotate request fails", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      providerApiKeyService.rotateApiKey.mockRejectedValue(new Error("rotate failed"));
+
+      await component["rotate"]();
+      fixture.detectChanges();
+      component["formGroup"].controls.secret.setValue(verification);
+
+      await expect(component["submit"]()).rejects.toThrow("rotate failed");
+      fixture.detectChanges();
+
+      expect(providerApiKeyService.rotateApiKey).toHaveBeenCalledWith(providerId, request);
+      expect(clientSecretValue()).toBe("api-key-value");
+      expect(query("provider-api-key-dialog_button_rotate")).not.toBeNull();
+      expect(fixture.debugElement.query(By.css("app-user-verification-form-input"))).toBeNull();
+    });
   });
 });

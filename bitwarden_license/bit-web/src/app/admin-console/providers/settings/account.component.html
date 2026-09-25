@@ -34,7 +34,7 @@
     </button>
   </form>
 
-  <ng-container *ngIf="showApiKeySection$ | async">
+  <ng-container *ngIf="provider && !loading && (showApiKeySection$ | async)">
     <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "apiKey" | i18n }}</h1>
     <p bitTypography="body1">{{ "apiKeyDesc" | i18n }}</p>
     <button

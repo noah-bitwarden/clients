@@ -17,6 +17,7 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { ProviderData } from "@bitwarden/common/admin-console/models/data/provider.data";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
+import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -40,6 +41,7 @@ describe("Provider AccountComponent", () => {
   let configService: MockProxy<ConfigService>;
   let providerService: MockProxy<ProviderService>;
   let dialogService: MockProxy<DialogService>;
+  let providerApiService: MockProxy<ProviderApiServiceAbstraction>;
   let flagEnabled$: BehaviorSubject<boolean>;
   let provider$: BehaviorSubject<Provider | undefined>;
 
@@ -69,8 +71,14 @@ describe("Provider AccountComponent", () => {
     );
     providerService.get$.mockReturnValue(provider$);
 
-    const providerApiService = mock<ProviderApiServiceAbstraction>();
-    providerApiService.getProvider.mockReturnValue(new Promise(() => {}));
+    providerApiService = mock<ProviderApiServiceAbstraction>();
+    providerApiService.getProvider.mockResolvedValue(
+      new ProviderResponse({
+        Id: providerId,
+        Name: "Provider",
+        BillingEmail: "billing@example.com",
+      }),
+    );
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
@@ -137,12 +145,29 @@ describe("Provider AccountComponent", () => {
     ["disabled", { enabled: false }],
     ["not billable", { providerStatus: ProviderStatusType.Pending }],
     ["a reseller", { providerType: ProviderType.Reseller }],
+    ["a business unit", { providerType: ProviderType.BusinessUnit }],
   ])("hides the API key section when the provider is %s", async (_, overrides) => {
     provider$.next(makeProvider(overrides));
 
     await render();
 
     expect(viewApiKeyButton()).toBeNull();
+  });
+
+  it("does not show the API key section until the provider has loaded", async () => {
+    let resolveProvider: (response: ProviderResponse) => void = () => {};
+    providerApiService.getProvider.mockReturnValue(
+      new Promise((resolve) => (resolveProvider = resolve)),
+    );
+
+    await render();
+
+    expect(viewApiKeyButton()).toBeNull();
+
+    resolveProvider(new ProviderResponse({ Id: providerId, Name: "Provider" }));
+    await render();
+
+    expect(viewApiKeyButton()).not.toBeNull();
   });
 
   it("opens the provider API key dialog for the current provider", async () => {

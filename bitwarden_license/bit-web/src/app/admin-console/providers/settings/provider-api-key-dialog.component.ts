@@ -58,6 +58,8 @@ export class ProviderApiKeyDialogComponent {
   protected readonly clientId = `provider.${this.data.providerId}`;
   protected readonly clientSecret = signal<string | null>(null);
   protected readonly rotating = signal(false);
+  /** The key hidden while the user re-verifies to rotate, restored if the rotate request fails */
+  private readonly previousClientSecret = signal<string | null>(null);
   protected readonly description = computed(() =>
     this.rotating() ? "apiKeyRotateDesc" : "apiKeyDesc",
   );
@@ -75,13 +77,27 @@ export class ProviderApiKeyDialogComponent {
 
     const request = await this.userVerificationService.buildRequest(secret, ProviderApiKeyRequest);
     const response = this.rotating()
-      ? await this.providerApiKeyService.rotateApiKey(this.data.providerId, request)
+      ? await this.rotateApiKey(request)
       : await this.providerApiKeyService.getOrCreateApiKey(this.data.providerId, request);
 
     this.formGroup.reset();
     this.rotating.set(false);
     this.clientSecret.set(response.apiKey);
   };
+
+  private async rotateApiKey(request: ProviderApiKeyRequest) {
+    try {
+      return await this.providerApiKeyService.rotateApiKey(this.data.providerId, request);
+    } catch (e) {
+      // The current key is still valid, so show it again. Rethrow so the error is still shown to the user.
+      this.formGroup.reset();
+      this.rotating.set(false);
+      this.clientSecret.set(this.previousClientSecret());
+      throw e;
+    } finally {
+      this.previousClientSecret.set(null);
+    }
+  }
 
   protected readonly rotate = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -95,6 +111,7 @@ export class ProviderApiKeyDialogComponent {
     }
 
     // Hide the current key and ask the user to verify again before rotating it
+    this.previousClientSecret.set(this.clientSecret());
     this.clientSecret.set(null);
     this.rotating.set(true);
   };

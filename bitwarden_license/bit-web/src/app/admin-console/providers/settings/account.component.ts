@@ -166,8 +166,7 @@ export class AccountComponent implements OnDestroy, OnInit {
       provider.isProviderAdmin &&
       provider.enabled &&
       provider.providerStatus === ProviderStatusType.Billable &&
-      (provider.providerType === ProviderType.Msp ||
-        provider.providerType === ProviderType.BusinessUnit)
+      provider.providerType === ProviderType.Msp
     );
   }
 
