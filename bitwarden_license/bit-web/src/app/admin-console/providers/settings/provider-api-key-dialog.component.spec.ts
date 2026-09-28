@@ -131,7 +131,7 @@ describe("ProviderApiKeyDialogComponent", () => {
       verification,
       ProviderApiKeyRequest,
     );
-    expect(request.type).toBe(ProviderApiKeyType.BillingReadOnly);
+    expect(request.type).toBe(ProviderApiKeyType.Default);
     expect(providerApiKeyService.getOrCreateApiKey).toHaveBeenCalledWith(providerId, request);
     expect(providerApiKeyService.rotateApiKey).not.toHaveBeenCalled();
     expect(clientSecretValue()).toBe("api-key-value");

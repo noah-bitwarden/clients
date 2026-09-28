@@ -31,8 +31,8 @@ describe("ProviderApiKeyService", () => {
     request.masterPasswordHash = "master-password-hash";
   });
 
-  it("defaults the api key request type to BillingReadOnly", () => {
-    expect(new ProviderApiKeyRequest().type).toBe(ProviderApiKeyType.BillingReadOnly);
+  it("defaults the api key request type to Default", () => {
+    expect(new ProviderApiKeyRequest().type).toBe(ProviderApiKeyType.Default);
   });
 
   describe("getOrCreateApiKey", () => {
