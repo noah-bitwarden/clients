@@ -60,4 +60,54 @@ describe("EventLogApiService", () => {
       expect(result.data[0]).toBeInstanceOf(EventResponse);
     });
   });
+
+  describe("getEventsProviderClients", () => {
+    it("sends the dates, the continuation token, and one organizationId param per client", async () => {
+      apiService.send.mockResolvedValue({ data: [], continuationToken: null });
+
+      const result = await sut.getEventsProviderClients(
+        "provider-1",
+        ["org-1", "org-2"],
+        "2024-01-01",
+        "2024-01-31",
+        "tok-1",
+      );
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/providers/provider-1/client-events?start=2024-01-01&end=2024-01-31&continuationToken=tok-1&organizationId=org-1&organizationId=org-2",
+        null,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(ListResponse);
+    });
+
+    it("sends the organizationId params without dates or a token", async () => {
+      apiService.send.mockResolvedValue({ data: [], continuationToken: null });
+
+      await sut.getEventsProviderClients("provider-1", ["org-1"], null, null, null);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/providers/provider-1/client-events?organizationId=org-1",
+        null,
+        true,
+        true,
+      );
+    });
+
+    it("maps the response data and continuation token", async () => {
+      apiService.send.mockResolvedValue({
+        data: [{ type: 1, organizationId: "org-1" }],
+        continuationToken: "next",
+      });
+
+      const result = await sut.getEventsProviderClients("provider-1", ["org-1"], null, null, null);
+
+      expect(result.data[0]).toBeInstanceOf(EventResponse);
+      expect(result.data[0].organizationId).toBe("org-1");
+      expect(result.continuationToken).toBe("next");
+    });
+  });
 });

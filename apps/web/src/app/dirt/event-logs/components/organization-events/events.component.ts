@@ -55,7 +55,7 @@ import {
   resolveSendAccessMember,
 } from "../send-access-member";
 
-const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
+export const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM
   [EventSystemUser.DomainVerification]: "domainVerification",
   [EventSystemUser.PublicApi]: "publicApi",

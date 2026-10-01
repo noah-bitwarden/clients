@@ -19,13 +19,19 @@ import { BitwardenIcon, ToastService } from "@bitwarden/components";
 import { EventExportService } from "../../../../tools/event-export";
 import { EventOptions, EventService } from "../../services/event.service";
 
+/**
+ * Why events are being requested: `"page"` for the table (refresh and "Load more"), `"export"` for
+ * the back-to-back paging of a CSV export. Lets subclasses apply a different retry policy to each.
+ */
+export type EventsRequestPurpose = "page" | "export";
+
 @Directive()
 export abstract class BaseEventsComponent implements OnDestroy {
   readonly loading = signal(true);
   readonly loaded = signal(false);
   readonly events = signal<EventView[]>([]);
   dirtyDates = true;
-  continuationToken: string;
+  continuationToken: string | null;
   canUseSM = false;
 
   abstract readonly exportFileName: string;
@@ -51,7 +57,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
     protected platformUtilsService: PlatformUtilsService,
     protected logService: LogService,
     protected fileDownloadService: FileDownloadService,
-    private toastService: ToastService,
+    protected toastService: ToastService,
     protected activeRoute: ActivatedRoute,
     protected accountService: AccountService,
     protected organizationService: OrganizationService,
@@ -173,11 +179,12 @@ export abstract class BaseEventsComponent implements OnDestroy {
     startDate: string,
     endDate: string,
     continuationToken: string,
+    purpose?: EventsRequestPurpose,
   ): Promise<ListResponse<EventResponse>>;
   protected abstract getUserName(
     r: EventResponse,
     userId: string,
-  ): { name: string; email?: string };
+  ): { name: string; email?: string } | null;
 
   /**
    * User ids whose member events can be opened. Gates whether ids render as links.
@@ -199,12 +206,21 @@ export abstract class BaseEventsComponent implements OnDestroy {
     return undefined;
   }
 
+  /**
+   * Builds the view for one event row. Subclasses that need extra per-row data (e.g. which client
+   * organization an event came from) override this to return an `EventView` subclass.
+   */
+  protected toEventView(_r: EventResponse, data: Required<EventView>): EventView {
+    return new EventView(data);
+  }
+
   protected async loadAndParseEvents(
     startDate: string,
     endDate: string,
     continuationToken: string,
+    purpose: EventsRequestPurpose = "page",
   ) {
-    const response = await this.requestEvents(startDate, endDate, continuationToken);
+    const response = await this.requestEvents(startDate, endDate, continuationToken, purpose);
 
     const linkableMemberIds = this.linkableMemberIds();
 
@@ -220,7 +236,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
         const user = this.getUserName(r, userId);
         const userName = user != null ? user.name : this.i18nService.t("unknown");
 
-        return new EventView({
+        return this.toEventView(r, {
           message: eventInfo.message,
           humanReadableMessage: eventInfo.humanReadableMessage,
           appIcon: eventInfo.appIcon,
@@ -263,7 +279,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
     let events = [].concat(this.events());
 
     while (continuationToken != null) {
-      const result = await this.loadAndParseEvents(start, end, continuationToken);
+      const result = await this.loadAndParseEvents(start, end, continuationToken, "export");
       continuationToken = result.continuationToken;
       events = events.concat(result.events);
     }

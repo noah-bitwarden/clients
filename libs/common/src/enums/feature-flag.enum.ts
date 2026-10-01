@@ -93,6 +93,7 @@ export enum FeatureFlag {
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
   BrowserExtensionHealthReport = "pm-35928-premium-user-health-reports",
   AccessIntelligencePerformanceAtScale = "pm-43231-access-intelligence-performance-at-scale",
+  ProviderClientEvents = "pfi-389-provider-client-events",
 
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
@@ -186,6 +187,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
   [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
   [FeatureFlag.AccessIntelligencePerformanceAtScale]: FALSE,
+  [FeatureFlag.ProviderClientEvents]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,

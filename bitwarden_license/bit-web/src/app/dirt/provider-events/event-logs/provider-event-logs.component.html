@@ -1,0 +1,12 @@
+<app-header>
+  @if (clientEventsEnabled()) {
+    <bit-tab-nav-bar slot="tabs">
+      <bit-tab-link route="provider">{{ "providerEvents" | i18n }}</bit-tab-link>
+      <bit-tab-link route="clients" data-testid="client-events-tab">{{
+        "clientEvents" | i18n
+      }}</bit-tab-link>
+    </bit-tab-nav-bar>
+  }
+</app-header>
+
+<router-outlet></router-outlet>

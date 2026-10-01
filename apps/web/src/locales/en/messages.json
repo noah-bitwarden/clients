@@ -17932,5 +17932,42 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "providerEvents": {
+    "message": "Provider events",
+    "description": "Tab on the Provider Portal event log page for events about the provider itself."
+  },
+  "clientEvents": {
+    "message": "Client events",
+    "description": "Tab on the Provider Portal event log page for events from the provider's client organizations."
+  },
+  "clientEventsSelectClients": {
+    "message": "Select clients",
+    "description": "Placeholder for the client selector on the Provider Portal client events tab."
+  },
+  "clientEventsSelectionLimit": {
+    "message": "You can select up to $COUNT$ clients.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "clientEventsNoClientsSelected": {
+    "message": "Select up to $COUNT$ clients to view their events.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "clientEventsClientColumn": {
+    "message": "Client",
+    "description": "Table and export column for the client organization an event came from."
+  },
+  "clientEventsExportRateLimited": {
+    "message": "The export was rate-limited. Try again shortly."
   }
 }
