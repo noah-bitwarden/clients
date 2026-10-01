@@ -3,50 +3,70 @@
     <bit-form-field>
       <bit-label>{{ "startDate" | i18n }}</bit-label>
       <input
+        id="provider-client-events_input_start-date"
         bitInput
         type="datetime-local"
         placeholder="{{ 'startDate' | i18n }}"
         formControlName="start"
-        (change)="dirtyDates = true"
+        (change)="onDatesChanged()"
       />
     </bit-form-field>
     <span class="tw-mx-2">-</span>
     <bit-form-field>
       <bit-label>{{ "endDate" | i18n }}</bit-label>
       <input
+        id="provider-client-events_input_end-date"
         bitInput
         type="datetime-local"
         placeholder="{{ 'endDate' | i18n }}"
         formControlName="end"
-        (change)="dirtyDates = true"
+        (change)="onDatesChanged()"
       />
     </bit-form-field>
     <form>
       <button
+        id="provider-client-events_button_refresh"
         class="tw-mx-3 tw-mt-1"
         type="button"
         bitButton
         bitFormButton
         buttonType="primary"
         [bitAction]="refreshEvents"
+        [disabled]="!selectedClientIds().length"
       >
         {{ "refresh" | i18n }}
       </button>
     </form>
     <form>
       <button
+        id="provider-client-events_button_export"
         type="button"
         class="tw-mt-1"
         bitButton
         bitFormButton
         [bitAction]="exportEvents"
-        [disabled]="dirtyDates"
+        [disabled]="dirtyDates || reloadPending() || !selectedClientIds().length"
         endIcon="bwi-import"
       >
         {{ "exportVerb" | i18n }}
       </button>
     </form>
   </div>
+  <bit-form-field class="tw-max-w-3xl">
+    <bit-label>{{ "clients" | i18n }}</bit-label>
+    <bit-multi-select
+      id="provider-client-events_multi-select_clients"
+      class="tw-w-full"
+      [baseItems]="clientOptions()"
+      [formControl]="clientsControl"
+      [placeholder]="'clientEventsSelectClients' | i18n"
+    ></bit-multi-select>
+    @if (selectionLimitReached()) {
+      <bit-hint data-testid="client-limit-hint">{{
+        "clientEventsSelectionLimit" | i18n: maxSelectedClients
+      }}</bit-hint>
+    }
+  </bit-form-field>
 </div>
 @if (!loaded()) {
   <ng-container>
@@ -60,15 +80,24 @@
 }
 @if (loaded()) {
   <ng-container>
-    @if (!events() || !events().length) {
+    @if (!selectedClientIds().length) {
+      <p data-testid="no-clients-selected">
+        {{ "clientEventsNoClientsSelected" | i18n: maxSelectedClients }}
+      </p>
+    } @else if (!events() || !events().length) {
       <p>{{ "noEventsInList" | i18n }}</p>
     }
 
-    @if (events() && events().length) {
+    @if (selectedClientIds().length && events() && events().length) {
       <bit-table data-testid="events-table">
         <ng-container header>
           <tr>
             <th bitCell>{{ "timestamp" | i18n }}</th>
+            @if (showClientColumn()) {
+              <th bitCell data-testid="client-column-header">
+                {{ "clientEventsClientColumn" | i18n }}
+              </th>
+            }
             <th bitCell>{{ "device" | i18n }}</th>
             <th bitCell>{{ "user" | i18n }}</th>
             <th bitCell>{{ "event" | i18n }}</th>
@@ -78,6 +107,9 @@
           @for (e of events(); track i; let i = $index) {
             <tr bitRow alignContent="top">
               <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
+              @if (showClientColumn()) {
+                <td bitCell>{{ clientName(e) }}</td>
+              }
               <td bitCell>
                 <bit-icon
                   class="bwi-lg tw-text-muted"
@@ -95,8 +127,14 @@
         </ng-template>
       </bit-table>
     }
-    @if (continuationToken) {
-      <button bitButton type="button" buttonType="primary" [bitAction]="loadMoreEvents">
+    @if (continuationToken && selectedClientIds().length) {
+      <button
+        id="provider-client-events_button_load-more"
+        bitButton
+        type="button"
+        buttonType="primary"
+        [bitAction]="loadMoreEvents"
+      >
         @if (loading()) {
           <bit-icon
             class="bwi-lg bwi-spin tw-text-muted"

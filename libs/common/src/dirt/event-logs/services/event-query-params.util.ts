@@ -6,9 +6,9 @@
  */
 export function addEventParameters(
   base: string,
-  start: string,
-  end: string,
-  token: string,
+  start: string | null,
+  end: string | null,
+  token: string | null,
 ): string {
   if (start != null) {
     base += "?start=" + start;
