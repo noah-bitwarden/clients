@@ -34,6 +34,20 @@
     </button>
   </form>
 
+  <ng-container *ngIf="provider && !loading && (showApiKeySection$ | async)">
+    <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "apiKey" | i18n }}</h1>
+    <p bitTypography="body1">{{ "apiKeyDesc" | i18n }}</p>
+    <button
+      type="button"
+      id="provider-account_button_view-api-key"
+      bitButton
+      buttonType="secondary"
+      (click)="viewApiKey()"
+    >
+      {{ "viewApiKey" | i18n }}
+    </button>
+  </ng-container>
+
   <app-danger-zone>
     <button type="button" bitButton buttonType="danger" (click)="deleteProvider()">
       {{ "deleteProvider" | i18n }}
