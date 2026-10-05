@@ -17977,5 +17977,179 @@
   },
   "serviceAccountsProratedCharge": {
     "message": "Service accounts prorated charge"
+  },
+  "seatAutoscale": {
+    "message": "Seat autoscale"
+  },
+  "clientSeatAutoscaleDesc": {
+    "message": "When this client runs out of seats, seats are added automatically as long as you stay within your provider seat minimum. Nothing is purchased automatically, and seats are never removed automatically."
+  },
+  "turnOnSeatAutoscale": {
+    "message": "Turn on seat autoscale"
+  },
+  "autoscaleSeatLimit": {
+    "message": "Seat limit (optional)"
+  },
+  "autoscaleSeatLimitHint": {
+    "message": "The most seats autoscale can grow this client to. Leave empty for no limit."
+  },
+  "autoscaleSeatLimitMin": {
+    "message": "Enter a whole number of at least $SEATS$, the client's current seats.",
+    "placeholders": {
+      "seats": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "clientAutoscaleUpdated": {
+    "message": "Seat autoscale updated"
+  },
+  "clientAutoscalePermissionError": {
+    "message": "Only provider admins can change seat autoscale."
+  },
+  "autoscaleOn": {
+    "message": "Autoscale on"
+  },
+  "autoscaleOnWithLimit": {
+    "message": "Autoscale on (limit $LIMIT$)",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "25"
+      }
+    }
+  },
+  "turnedOnClientSeatAutoscale": {
+    "message": "Turned on seat autoscale for client $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      }
+    }
+  },
+  "turnedOnClientSeatAutoscaleWithName": {
+    "message": "Turned on seat autoscale for client $ORGNAME$ ($ID$).",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "turnedOffClientSeatAutoscale": {
+    "message": "Turned off seat autoscale for client $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      }
+    }
+  },
+  "turnedOffClientSeatAutoscaleWithName": {
+    "message": "Turned off seat autoscale for client $ORGNAME$ ($ID$).",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "updatedClientSeatAutoscaleLimit": {
+    "message": "Updated the seat autoscale limit for client $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      }
+    }
+  },
+  "updatedClientSeatAutoscaleLimitWithName": {
+    "message": "Updated the seat autoscale limit for client $ORGNAME$ ($ID$).",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "autoscaledClientSeats": {
+    "message": "Automatically added seats to client $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      }
+    }
+  },
+  "autoscaledClientSeatsWithName": {
+    "message": "Automatically added seats to client $ORGNAME$ ($ID$).",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "clientSeatAutoscaleBlockedPool": {
+    "message": "Seats couldn't be added to client $ID$: provider seat minimum reached.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      }
+    }
+  },
+  "clientSeatAutoscaleBlockedPoolWithName": {
+    "message": "Seats couldn't be added to client $ORGNAME$ ($ID$): provider seat minimum reached.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "clientSeatAutoscaleBlockedLimit": {
+    "message": "Seats couldn't be added to client $ID$: client autoscale limit reached.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      }
+    }
+  },
+  "clientSeatAutoscaleBlockedLimitWithName": {
+    "message": "Seats couldn't be added to client $ORGNAME$ ($ID$): client autoscale limit reached.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "3f2a9c1e"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
   }
 }

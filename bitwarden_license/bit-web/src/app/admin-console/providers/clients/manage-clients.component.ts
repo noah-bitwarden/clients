@@ -15,12 +15,18 @@ import { debounceTime, first } from "rxjs/operators";
 
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { ProviderType, ProviderUserType } from "@bitwarden/common/admin-console/enums";
+import {
+  ProviderStatusType,
+  ProviderType,
+  ProviderUserType,
+} from "@bitwarden/common/admin-console/enums";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
@@ -45,6 +51,10 @@ import {
   CreateClientDialogResultType,
   openCreateClientDialog,
 } from "./create-client-dialog.component";
+import {
+  ManageClientAutoscaleDialogResultType,
+  openManageClientAutoscaleDialog,
+} from "./manage-client-autoscale-dialog.component";
 import {
   ManageClientNameDialogResultType,
   openManageClientNameDialog,
@@ -107,6 +117,21 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     map(([isAdminOrServiceUser, providerEnabled]) => isAdminOrServiceUser && !providerEnabled),
   );
 
+  protected autoscaleFlagEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM18793_ProviderClientSeatAutoscale,
+  );
+
+  // Autoscale only applies to billable MSPs, and the settings endpoint is admin-only.
+  protected canManageAutoscale$ = combineLatest([this.autoscaleFlagEnabled$, this.provider$]).pipe(
+    map(
+      ([flagEnabled, provider]) =>
+        flagEnabled &&
+        provider?.type === ProviderUserType.ProviderAdmin &&
+        provider?.providerType === ProviderType.Msp &&
+        provider?.providerStatus === ProviderStatusType.Billable,
+    ),
+  );
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -121,6 +146,7 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     private billingNotificationService: BillingNotificationService,
     private accountService: AccountService,
     private providerApiService: ProviderApiServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -232,6 +258,22 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     const result = await firstValueFrom(dialogRef.closed);
 
     if (result === ManageClientSubscriptionDialogResultType.Submitted) {
+      await this.load();
+    }
+  };
+
+  manageClientAutoscale = async (organization: ProviderOrganizationOrganizationDetailsResponse) => {
+    const providerId = await firstValueFrom(this.providerId$);
+    const dialogRef = openManageClientAutoscaleDialog(this.dialogService, {
+      data: {
+        providerId,
+        organization,
+      },
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+
+    if (result === ManageClientAutoscaleDialogResultType.Submitted) {
       await this.load();
     }
   };

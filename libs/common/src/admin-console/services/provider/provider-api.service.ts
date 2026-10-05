@@ -5,8 +5,10 @@ import { CreateProviderOrganizationRequest } from "../../models/request/create-p
 import { ProviderSetupRequest } from "../../models/request/provider/provider-setup.request";
 import { ProviderUpdateRequest } from "../../models/request/provider/provider-update.request";
 import { ProviderVerifyRecoverDeleteRequest } from "../../models/request/provider/provider-verify-recover-delete.request";
+import { UpdateProviderClientAutoscaleRequest } from "../../models/request/update-provider-client-autoscale.request";
 import { UpdateProviderOrganizationRequest } from "../../models/request/update-provider-organization.request";
 import { AddableOrganizationResponse } from "../../models/response/addable-organization.response";
+import { ProviderClientAutoscaleResponse } from "../../models/response/provider/provider-client-autoscale.response";
 import { ProviderOrganizationOrganizationDetailsResponse } from "../../models/response/provider/provider-organization.response";
 import { ProviderResponse } from "../../models/response/provider/provider.response";
 
@@ -105,6 +107,26 @@ export class ProviderApiService implements ProviderApiServiceAbstraction {
       true,
       false,
     );
+  }
+
+  async updateProviderClientAutoscale(
+    providerId: string,
+    providerOrganizationId: string,
+    request: UpdateProviderClientAutoscaleRequest,
+  ): Promise<ProviderClientAutoscaleResponse> {
+    const response = await this.apiService.send(
+      "PUT",
+      "/providers/" + providerId + "/clients/" + providerOrganizationId + "/autoscale",
+      request,
+      true,
+      true,
+      undefined,
+      undefined,
+      // The endpoint returns 403 to provider users who aren't admins. Let the caller show a
+      // permission error instead of signing the user out.
+      { logoutOnForbidden: false },
+    );
+    return new ProviderClientAutoscaleResponse(response);
   }
 
   createProviderOrganization(

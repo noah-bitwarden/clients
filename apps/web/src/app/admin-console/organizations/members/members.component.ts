@@ -322,7 +322,10 @@ export class MembersComponent {
 
   async restore(user: OrganizationUserView, organization: Organization) {
     const billingMetadata = await firstValueFrom(this.billingMetadata$);
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    const seatLimitResult = await this.billingConstraint.checkSeatLimit(
+      organization,
+      billingMetadata,
+    );
     if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
       return;
     }
@@ -358,7 +361,10 @@ export class MembersComponent {
 
   async invite(organization: Organization) {
     const billingMetadata = await firstValueFrom(this.billingMetadata$);
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    const seatLimitResult = await this.billingConstraint.checkSeatLimit(
+      organization,
+      billingMetadata,
+    );
 
     if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization)) {
       return;
@@ -420,7 +426,10 @@ export class MembersComponent {
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
     if (!isRevoking) {
       const billingMetadata = await firstValueFrom(this.billingMetadata$);
-      const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+      const seatLimitResult = await this.billingConstraint.checkSeatLimit(
+        organization,
+        billingMetadata,
+      );
       if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
         return;
       }

@@ -2,9 +2,12 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { isNotSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -32,12 +35,13 @@ export class BillingConstraintService {
     private dialogService: DialogService,
     private toastService: ToastService,
     private router: Router,
+    private configService: ConfigService,
   ) {}
 
-  checkSeatLimit(
+  async checkSeatLimit(
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
-  ): SeatLimitResult {
+  ): Promise<SeatLimitResult> {
     const occupiedSeats = billingMetadata?.organizationOccupiedSeats;
     if (occupiedSeats == null) {
       throw new Error("Cannot check seat limit: billingMetadata is null or undefined.");
@@ -49,6 +53,15 @@ export class BillingConstraintService {
     }
 
     if (organization.hasReseller || organization.hasBillableProvider) {
+      // MSP clients may autoscale from the provider's seat minimum. Only the server knows whether
+      // autoscale applies, so let the request through and show the server's error if it doesn't.
+      if (
+        organization.providerType === ProviderType.Msp &&
+        (await this.configService.getFeatureFlag(FeatureFlag.PM18793_ProviderClientSeatAutoscale))
+      ) {
+        return { canAddUsers: true };
+      }
+
       return {
         canAddUsers: false,
         reason: "provider-limit",
