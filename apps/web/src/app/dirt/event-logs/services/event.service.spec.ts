@@ -319,6 +319,42 @@ describe("EventService organization name personalization (vfo1-foundation)", () 
       "accessedClientVaultWithName",
       { providerOrganizationId: "po-1", providerId: "provider-1" },
     ],
+    [
+      EventType.ProviderOrganization_AutoscaleEnabled,
+      "turnedOnClientSeatAutoscale",
+      "turnedOnClientSeatAutoscaleWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_AutoscaleDisabled,
+      "turnedOffClientSeatAutoscale",
+      "turnedOffClientSeatAutoscaleWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_AutoscaleLimitUpdated,
+      "updatedClientSeatAutoscaleLimit",
+      "updatedClientSeatAutoscaleLimitWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_SeatsAutoscaled,
+      "autoscaledClientSeats",
+      "autoscaledClientSeatsWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_SeatAutoscaleBlockedPoolExhausted,
+      "clientSeatAutoscaleBlockedPool",
+      "clientSeatAutoscaleBlockedPoolWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
+    [
+      EventType.ProviderOrganization_SeatAutoscaleBlockedClientLimit,
+      "clientSeatAutoscaleBlockedLimit",
+      "clientSeatAutoscaleBlockedLimitWithName",
+      { providerOrganizationId: "po-1", providerId: "provider-1" },
+    ],
   ];
 
   it.each(cases)(

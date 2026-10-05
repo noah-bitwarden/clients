@@ -1060,6 +1060,76 @@ describe("ApiService", () => {
       expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
     });
 
+    it("does not log out the authenticated user when the request opts out", async () => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("valid_token");
+      tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+
+      nativeFetch.mockImplementation((request) => {
+        return Promise.resolve({
+          ok: false,
+          status: 403,
+          json: () => Promise.resolve({ message: "Forbidden" }),
+          headers: new Headers({
+            "content-type": "application/json",
+          }),
+        } satisfies Partial<Response> as Response);
+      });
+
+      sut.nativeFetch = nativeFetch;
+
+      await expect(
+        async () =>
+          await sut.send("PUT", "/something", null, true, true, null, null, {
+            logoutOnForbidden: false,
+          }),
+      ).rejects.toMatchObject({ message: "Forbidden", statusCode: 403 });
+
+      expect(logoutCallback).not.toHaveBeenCalled();
+    });
+
+    it("still logs out on 401 when the request opts out of logout on 403", async () => {
+      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+        of({
+          getApiUrl: () => "https://example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getAccessToken.calledWith(testActiveUser).mockResolvedValue("valid_token");
+      tokenService.tokenNeedsRefresh.calledWith(testActiveUser).mockResolvedValue(false);
+
+      const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
+
+      nativeFetch.mockImplementation((request) => {
+        return Promise.resolve({
+          ok: false,
+          status: 401,
+          json: () => Promise.resolve({ message: "Unauthorized" }),
+          headers: new Headers({
+            "content-type": "application/json",
+          }),
+        } satisfies Partial<Response> as Response);
+      });
+
+      sut.nativeFetch = nativeFetch;
+
+      await expect(
+        async () =>
+          await sut.send("PUT", "/something", null, true, false, null, null, {
+            logoutOnForbidden: false,
+          }),
+      ).rejects.toMatchObject({ message: "Unauthorized" });
+
+      expect(logoutCallback).toHaveBeenCalledWith("invalidAccessToken");
+    });
+
     it("does not attempt to log out unauthenticated user", async () => {
       environmentService.environment$ = of({
         getApiUrl: () => "https://example.com",

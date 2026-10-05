@@ -13,6 +13,8 @@ export class ProviderOrganizationResponse extends BaseResponse {
   occupiedSeats?: number;
   remainingSeats?: number;
   plan?: string;
+  autoscaleEnabled: boolean;
+  autoscaleSeatLimit?: number;
 
   constructor(response: any) {
     super(response);
@@ -28,6 +30,8 @@ export class ProviderOrganizationResponse extends BaseResponse {
     this.occupiedSeats = this.getResponseProperty("OccupiedSeats");
     this.remainingSeats = this.getResponseProperty("RemainingSeats");
     this.plan = this.getResponseProperty("Plan");
+    this.autoscaleEnabled = this.getResponseProperty("AutoscaleEnabled") ?? false;
+    this.autoscaleSeatLimit = this.getResponseProperty("AutoscaleSeatLimit");
   }
 }
 

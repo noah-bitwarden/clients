@@ -1,0 +1,47 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+  <span bitDialogTitle class="tw-font-medium">
+    {{ "seatAutoscale" | i18n }}
+    <small class="tw-text-muted">{{ dialogParams.organization.organizationName }}</small>
+  </span>
+  <div bitDialogContent>
+    <p bitTypography="body1">{{ "clientSeatAutoscaleDesc" | i18n }}</p>
+    <bit-form-control>
+      <bit-switch
+        id="manage-client-autoscale-dialog_switch_enabled"
+        formControlName="enabled"
+      ></bit-switch>
+      <bit-label>{{ "turnOnSeatAutoscale" | i18n }}</bit-label>
+    </bit-form-control>
+    <bit-form-field>
+      <bit-label>{{ "autoscaleSeatLimit" | i18n }}</bit-label>
+      <input
+        id="manage-client-autoscale-dialog_input_seat-limit"
+        bitInput
+        type="number"
+        step="1"
+        formControlName="seatLimit"
+      />
+      <bit-hint>{{ "autoscaleSeatLimitHint" | i18n }}</bit-hint>
+    </bit-form-field>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      id="manage-client-autoscale-dialog_button_save"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      type="submit"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button
+      id="manage-client-autoscale-dialog_button_cancel"
+      bitButton
+      buttonType="secondary"
+      type="button"
+      [bitDialogClose]="ResultType.Closed"
+    >
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</form>

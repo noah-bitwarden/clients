@@ -128,6 +128,12 @@ export enum EventType {
   ProviderOrganization_Added = 1901,
   ProviderOrganization_Removed = 1902,
   ProviderOrganization_VaultAccessed = 1903,
+  ProviderOrganization_AutoscaleEnabled = 1904,
+  ProviderOrganization_AutoscaleDisabled = 1905,
+  ProviderOrganization_AutoscaleLimitUpdated = 1906,
+  ProviderOrganization_SeatsAutoscaled = 1907,
+  ProviderOrganization_SeatAutoscaleBlockedPoolExhausted = 1908,
+  ProviderOrganization_SeatAutoscaleBlockedClientLimit = 1909,
 
   OrganizationDomain_Added = 2000,
   OrganizationDomain_Removed = 2001,

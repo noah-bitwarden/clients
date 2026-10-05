@@ -748,6 +748,63 @@ export class EventService {
           this.getShortId(ev.providerOrganizationId),
         );
         break;
+      case EventType.ProviderOrganization_AutoscaleEnabled:
+        msg = this.i18nService.t(
+          "turnedOnClientSeatAutoscale",
+          this.formatProviderOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "turnedOnClientSeatAutoscale",
+          this.getShortId(ev.providerOrganizationId),
+        );
+        break;
+      case EventType.ProviderOrganization_AutoscaleDisabled:
+        msg = this.i18nService.t(
+          "turnedOffClientSeatAutoscale",
+          this.formatProviderOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "turnedOffClientSeatAutoscale",
+          this.getShortId(ev.providerOrganizationId),
+        );
+        break;
+      case EventType.ProviderOrganization_AutoscaleLimitUpdated:
+        msg = this.i18nService.t(
+          "updatedClientSeatAutoscaleLimit",
+          this.formatProviderOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "updatedClientSeatAutoscaleLimit",
+          this.getShortId(ev.providerOrganizationId),
+        );
+        break;
+      case EventType.ProviderOrganization_SeatsAutoscaled:
+        msg = this.i18nService.t("autoscaledClientSeats", this.formatProviderOrganizationId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "autoscaledClientSeats",
+          this.getShortId(ev.providerOrganizationId),
+        );
+        break;
+      case EventType.ProviderOrganization_SeatAutoscaleBlockedPoolExhausted:
+        msg = this.i18nService.t(
+          "clientSeatAutoscaleBlockedPool",
+          this.formatProviderOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "clientSeatAutoscaleBlockedPool",
+          this.getShortId(ev.providerOrganizationId),
+        );
+        break;
+      case EventType.ProviderOrganization_SeatAutoscaleBlockedClientLimit:
+        msg = this.i18nService.t(
+          "clientSeatAutoscaleBlockedLimit",
+          this.formatProviderOrganizationId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "clientSeatAutoscaleBlockedLimit",
+          this.getShortId(ev.providerOrganizationId),
+        );
+        break;
       // Org Domain claiming events
       case EventType.OrganizationDomain_Added:
         msg = humanReadableMsg = this.i18nService.t("addedDomain", this.escapeHtml(ev.domainName));
@@ -1342,6 +1399,102 @@ export class EventService {
           );
           humanReadableMsg = this.i18nService.t(
             "accessedClientVaultWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_AutoscaleEnabled: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "turnedOnClientSeatAutoscaleWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "turnedOnClientSeatAutoscaleWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_AutoscaleDisabled: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "turnedOffClientSeatAutoscaleWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "turnedOffClientSeatAutoscaleWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_AutoscaleLimitUpdated: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "updatedClientSeatAutoscaleLimitWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "updatedClientSeatAutoscaleLimitWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_SeatsAutoscaled: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "autoscaledClientSeatsWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "autoscaledClientSeatsWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_SeatAutoscaleBlockedPoolExhausted: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "clientSeatAutoscaleBlockedPoolWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "clientSeatAutoscaleBlockedPoolWithName",
+            this.getShortId(ev.providerOrganizationId),
+            orgName,
+          );
+        }
+        break;
+      }
+      case EventType.ProviderOrganization_SeatAutoscaleBlockedClientLimit: {
+        const orgName = this.resolveOrgName(ev, options);
+        if (orgName != null) {
+          msg = this.i18nService.t(
+            "clientSeatAutoscaleBlockedLimitWithName",
+            this.formatProviderOrganizationId(ev),
+            this.escapeHtml(orgName),
+          );
+          humanReadableMsg = this.i18nService.t(
+            "clientSeatAutoscaleBlockedLimitWithName",
             this.getShortId(ev.providerOrganizationId),
             orgName,
           );

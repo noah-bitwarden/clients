@@ -1,5 +1,7 @@
 @let isSuspensionActive = suspensionActive$ | async;
 @let provider = provider$ | async;
+@let autoscaleFlagEnabled = autoscaleFlagEnabled$ | async;
+@let canManageAutoscale = canManageAutoscale$ | async;
 <app-header [title]="pageTitle">
   <bit-search [placeholder]="'search' | i18n" [formControl]="searchControl"></bit-search>
   @if (provider?.type === ProviderUserType.ProviderAdmin) {
@@ -68,6 +70,15 @@
           <a bitLink [routerLink]="['/organizations', row.organizationId]">{{
             row.organizationName
           }}</a>
+          @if (autoscaleFlagEnabled && row.autoscaleEnabled) {
+            <span bitBadge variant="primary" class="tw-shrink-0">
+              @if (row.autoscaleSeatLimit != null) {
+                {{ "autoscaleOnWithLimit" | i18n: row.autoscaleSeatLimit }}
+              } @else {
+                {{ "autoscaleOn" | i18n }}
+              }
+            </span>
+          }
         </div>
       </td>
       <td bitCell class="tw-whitespace-nowrap">
@@ -111,6 +122,18 @@
             <i aria-hidden="true" class="bwi bwi-family"></i>
             {{ "manageSubscription" | i18n }}
           </button>
+          @if (canManageAutoscale) {
+            <button
+              type="button"
+              bitMenuItem
+              [disabled]="isSuspensionActive"
+              [title]="isSuspensionActive ? ('providerIsDisabled' | i18n) : ''"
+              (click)="manageClientAutoscale(row)"
+            >
+              <bit-icon name="bwi-cog" slot="start" />
+              {{ "seatAutoscale" | i18n }}
+            </button>
+          }
           @if (provider?.type === ProviderUserType.ProviderAdmin) {
             <button type="button" bitMenuItem variant="danger" (click)="remove(row)">
               <bit-icon name="bwi-close" slot="start" />

@@ -596,7 +596,10 @@ export class EditMemberDialogComponent {
     const billingMetadata = await firstValueFrom(
       this.organizationMetadataService.getOrganizationMetadata$(organization.id),
     );
-    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    const seatLimitResult = await this.billingConstraint.checkSeatLimit(
+      organization,
+      billingMetadata,
+    );
     if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
       return;
     }

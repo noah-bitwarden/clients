@@ -83,6 +83,15 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 
+export type ApiSendOptions = {
+  /**
+   * Whether a 403 response to an authenticated request signs the user out. Defaults to `true`.
+   * Set to `false` only for endpoints that return 403 when the signed-in user lacks a permission,
+   * so the caller can show a permission error instead.
+   */
+  logoutOnForbidden?: boolean;
+};
+
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual
  * api services. The `send` method is still allowed to be used within api services. For background
@@ -98,6 +107,7 @@ export abstract class ApiService {
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (header: Headers) => void,
+    options?: ApiSendOptions,
   ): Promise<any>;
 
   /** Sends an unauthenticated API request. */
@@ -109,6 +119,7 @@ export abstract class ApiService {
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (header: Headers) => void,
+    options?: ApiSendOptions,
   ): Promise<any>;
 
   /** Sends an API request authenticated with the given users ID. */
@@ -120,6 +131,7 @@ export abstract class ApiService {
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
+    options?: ApiSendOptions,
   ): Promise<any>;
 
   abstract postIdentityToken(

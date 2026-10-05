@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   InviteLinkNotification = "pm-39601-invite-link-notification",
   InviteLinkAutoConfirm = "pm-34429-invite-link-auto-confirm",
+  PM18793_ProviderClientSeatAutoscale = "pm-18793-provider-client-seat-autoscale",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -137,6 +138,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.InviteLinkNotification]: FALSE,
   [FeatureFlag.InviteLinkAutoConfirm]: FALSE,
+  [FeatureFlag.PM18793_ProviderClientSeatAutoscale]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,

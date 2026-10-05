@@ -138,7 +138,7 @@ const mockDeleteManagedMemberWarningService = {
 };
 
 const mockBillingConstraintService = {
-  checkSeatLimit: () => ({ canAddUsers: true }),
+  checkSeatLimit: () => Promise.resolve({ canAddUsers: true }),
   seatLimitReached: () => Promise.resolve(false),
 };
 

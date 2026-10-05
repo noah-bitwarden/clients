@@ -9,7 +9,7 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
-import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
+import { ApiSendOptions, ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
@@ -1586,6 +1586,7 @@ export class ApiService implements ApiServiceAbstraction {
     hasResponse: boolean,
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
+    options?: ApiSendOptions,
   ): Promise<any> {
     // We assume that if there is a UserId making the request, it is also an authenticated
     // request and we will attempt to add an access token to the request.
@@ -1654,7 +1655,11 @@ export class ApiService implements ApiServiceAbstraction {
       const blob = await response.blob();
       return { blob, fileName };
     } else if (!responseIsSuccess && response.status !== HttpStatusCode.NoContent) {
-      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
+      const error = await this.handleApiRequestError(
+        response,
+        userIdMakingRequest != null,
+        options?.logoutOnForbidden ?? true,
+      );
       return Promise.reject(error);
     }
   }
@@ -1773,16 +1778,18 @@ export class ApiService implements ApiServiceAbstraction {
    * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
    * @param response The response from the API request
    * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
+   * @param logoutOnForbidden Whether a 403 response logs the user out. A 401 always does.
    * @returns An ErrorResponse with a message based on the response status.
    */
   private async handleApiRequestError(
     response: Response,
     userIsAuthenticated: boolean,
+    logoutOnForbidden = true,
   ): Promise<ErrorResponse> {
     if (
       userIsAuthenticated &&
       (response.status === HttpStatusCode.Unauthorized ||
-        response.status === HttpStatusCode.Forbidden)
+        (logoutOnForbidden && response.status === HttpStatusCode.Forbidden))
     ) {
       await this.logoutCallback("invalidAccessToken");
     }

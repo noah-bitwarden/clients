@@ -2,10 +2,13 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { of } from "rxjs";
 
+import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -26,6 +29,7 @@ describe("BillingConstraintService", () => {
   let toastService: jest.Mocked<ToastService>;
   let router: jest.Mocked<Router>;
   let organizationMetadataService: jest.Mocked<OrganizationMetadataServiceAbstraction>;
+  let configService: jest.Mocked<ConfigService>;
 
   const mockOrganizationId = "org-123" as OrganizationId;
 
@@ -95,6 +99,10 @@ describe("BillingConstraintService", () => {
       refreshMetadataCache: jest.fn(),
     } as any;
 
+    configService = {
+      getFeatureFlag: jest.fn().mockResolvedValue(false),
+    } as any;
+
     (openChangePlanDialog as jest.Mock).mockReturnValue(mockDialogRef);
 
     TestBed.configureTestingModule({
@@ -105,6 +113,7 @@ describe("BillingConstraintService", () => {
         { provide: ToastService, useValue: toastService },
         { provide: Router, useValue: router },
         { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -112,35 +121,35 @@ describe("BillingConstraintService", () => {
   });
 
   describe("checkSeatLimit", () => {
-    it("should allow users when occupied seats are less than total seats", () => {
+    it("should allow users when occupied seats are less than total seats", async () => {
       const organization = createMockOrganization({ seats: 10 });
       const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 5 });
 
-      const result = service.checkSeatLimit(organization, billingMetadata);
+      const result = await service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({ canAddUsers: true });
     });
 
-    it("should allow users when occupied seats equal total seats for non-fixed seat plans", () => {
+    it("should allow users when occupied seats equal total seats for non-fixed seat plans", async () => {
       const organization = createMockOrganization({
         seats: 10,
         productTierType: ProductTierType.Teams,
       });
       const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
 
-      const result = service.checkSeatLimit(organization, billingMetadata);
+      const result = await service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({ canAddUsers: true });
     });
 
-    it("should block users with provider-limit reason when organization has reseller", () => {
+    it("should block users with provider-limit reason when organization has reseller", async () => {
       const organization = createMockOrganization({
         seats: 10,
         hasReseller: true,
       });
       const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
 
-      const result = service.checkSeatLimit(organization, billingMetadata);
+      const result = await service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({
         canAddUsers: false,
@@ -148,14 +157,14 @@ describe("BillingConstraintService", () => {
       });
     });
 
-    it("should block users with provider-limit reason when organization has a billable provider", () => {
+    it("should block users with provider-limit reason when organization has a billable provider", async () => {
       const organization = createMockOrganization({
         seats: 10,
         hasBillableProvider: true,
       });
       const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
 
-      const result = service.checkSeatLimit(organization, billingMetadata);
+      const result = await service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({
         canAddUsers: false,
@@ -163,7 +172,7 @@ describe("BillingConstraintService", () => {
       });
     });
 
-    it("should block users with fixed-seat-limit reason for fixed seat plans", () => {
+    it("should block users with fixed-seat-limit reason for fixed seat plans", async () => {
       const organization = createMockOrganization({
         seats: 10,
         productTierType: ProductTierType.Free,
@@ -171,7 +180,7 @@ describe("BillingConstraintService", () => {
       });
       const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
 
-      const result = service.checkSeatLimit(organization, billingMetadata);
+      const result = await service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({
         canAddUsers: false,
@@ -180,7 +189,7 @@ describe("BillingConstraintService", () => {
       });
     });
 
-    it("should not show upgrade dialog when organization cannot edit subscription", () => {
+    it("should not show upgrade dialog when organization cannot edit subscription", async () => {
       const organization = createMockOrganization({
         seats: 10,
         productTierType: ProductTierType.TeamsStarter,
@@ -188,7 +197,7 @@ describe("BillingConstraintService", () => {
       });
       const billingMetadata = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
 
-      const result = service.checkSeatLimit(organization, billingMetadata);
+      const result = await service.checkSeatLimit(organization, billingMetadata);
 
       expect(result).toEqual({
         canAddUsers: false,
@@ -197,15 +206,104 @@ describe("BillingConstraintService", () => {
       });
     });
 
-    it("shoud throw if missing billingMetadata", () => {
+    it("shoud throw if missing billingMetadata", async () => {
       const organization = createMockOrganization({ seats: 10 });
       const billingMetadata = createMockBillingMetadata({
         organizationOccupiedSeats: undefined as any,
       });
 
-      const err = () => service.checkSeatLimit(organization, billingMetadata);
+      await expect(service.checkSeatLimit(organization, billingMetadata)).rejects.toThrow(
+        "Cannot check seat limit: billingMetadata is null or undefined.",
+      );
+    });
 
-      expect(err).toThrow("Cannot check seat limit: billingMetadata is null or undefined.");
+    describe("provider client seat autoscale", () => {
+      const atLimit = createMockBillingMetadata({ organizationOccupiedSeats: 10 });
+
+      const enableAutoscaleFlag = () =>
+        configService.getFeatureFlag.mockImplementation(
+          async (flag) => flag === FeatureFlag.PM18793_ProviderClientSeatAutoscale,
+        );
+
+      it("lets the request reach the server for an MSP-managed org when the flag is on", async () => {
+        enableAutoscaleFlag();
+        const organization = createMockOrganization({
+          hasBillableProvider: true,
+          providerType: ProviderType.Msp,
+        });
+
+        const result = await service.checkSeatLimit(organization, atLimit);
+
+        expect(result).toEqual({ canAddUsers: true });
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM18793_ProviderClientSeatAutoscale,
+        );
+      });
+
+      it("keeps the block for an MSP-managed org when the flag is off", async () => {
+        const organization = createMockOrganization({
+          hasBillableProvider: true,
+          providerType: ProviderType.Msp,
+        });
+
+        const result = await service.checkSeatLimit(organization, atLimit);
+
+        expect(result).toEqual({ canAddUsers: false, reason: "provider-limit" });
+      });
+
+      it("keeps the block for a Reseller-managed org when the flag is on", async () => {
+        enableAutoscaleFlag();
+        const organization = createMockOrganization({
+          hasReseller: true,
+          providerType: ProviderType.Reseller,
+        });
+
+        const result = await service.checkSeatLimit(organization, atLimit);
+
+        expect(result).toEqual({ canAddUsers: false, reason: "provider-limit" });
+      });
+
+      it("keeps the block for a BusinessUnit-managed org when the flag is on", async () => {
+        enableAutoscaleFlag();
+        const organization = createMockOrganization({
+          hasBillableProvider: true,
+          providerType: ProviderType.BusinessUnit,
+        });
+
+        const result = await service.checkSeatLimit(organization, atLimit);
+
+        expect(result).toEqual({ canAddUsers: false, reason: "provider-limit" });
+      });
+
+      it("leaves a non-provider fixed-seat org unchanged when the flag is on", async () => {
+        enableAutoscaleFlag();
+        const organization = createMockOrganization({
+          productTierType: ProductTierType.Free,
+          canEditSubscription: true,
+        });
+
+        const result = await service.checkSeatLimit(organization, atLimit);
+
+        expect(result).toEqual({
+          canAddUsers: false,
+          reason: "fixed-seat-limit",
+          shouldShowUpgradeDialog: true,
+        });
+      });
+
+      it("doesn't read the flag when the org has seats available", async () => {
+        const organization = createMockOrganization({
+          hasBillableProvider: true,
+          providerType: ProviderType.Msp,
+        });
+
+        await service.checkSeatLimit(
+          organization,
+          createMockBillingMetadata({ organizationOccupiedSeats: 5 }),
+        );
+
+        expect(configService.getFeatureFlag).not.toHaveBeenCalled();
+      });
     });
   });
 

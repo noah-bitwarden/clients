@@ -126,5 +126,11 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.ProviderOrganization_Added,
     EventType.ProviderOrganization_Removed,
     EventType.ProviderOrganization_VaultAccessed,
+    EventType.ProviderOrganization_AutoscaleEnabled,
+    EventType.ProviderOrganization_AutoscaleDisabled,
+    EventType.ProviderOrganization_AutoscaleLimitUpdated,
+    EventType.ProviderOrganization_SeatsAutoscaled,
+    EventType.ProviderOrganization_SeatAutoscaleBlockedPoolExhausted,
+    EventType.ProviderOrganization_SeatAutoscaleBlockedClientLimit,
   ],
 };
